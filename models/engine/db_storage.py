@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """This module defines the DBStorage engine"""
-from sqlalchemy import create_engine, MetaData, URL
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker, scoped_session
 import os
 
