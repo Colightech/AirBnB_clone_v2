@@ -48,36 +48,36 @@ class HBNBCommand(cmd.Cmd):
             return line
 
         try:  # parse line left to right
-            pline = line[:]  # parsed line
+            p_line = line[:]  # parsed line
 
             # isolate <class name>
-            _cls = pline[:pline.find('.')]
+            _cls = p_line[:p_line.find('.')]
 
             # isolate and validate <command>
-            _cmd = pline[pline.find('.') + 1:pline.find('(')]
+            _cmd = p_line[p_line.find('.') + 1:p_line.find('(')]
             if _cmd not in HBNBCommand.dot_cmds:
                 raise Exception
 
             # if parantheses contain arguments, parse them
-            pline = pline[pline.find('(') + 1:pline.find(')')]
-            if pline:
+            p_line = p_line[p_line.find('(') + 1:p_line.find(')')]
+            if p_line:
                 # partition args: (<id>, [<delim>], [<*args>])
-                pline = pline.partition(', ')  # pline convert to tuple
+                p_line = p_line.partition(', ')  # p_line convert to tuple
 
                 # isolate _id, stripping quotes
-                _id = pline[0].replace('\"', '')
+                _id = p_line[0].replace('\"', '')
                 # possible bug here:
                 # empty quotes register as empty _id when replaced
 
                 # if arguments exist beyond _id
-                pline = pline[2].strip()  # pline is now str
-                if pline:
+                p_line = p_line[2].strip()  # p_line is now str
+                if p_line:
                     # check for *args or **kwargs
-                    if pline[0] == '{' and pline[-1] == '}'\
-                            and type(eval(pline)) is dict:
-                        _args = pline
+                    if p_line[0] == '{' and p_line[-1] == '}'\
+                            and type(eval(p_line)) is dict:
+                        _args = p_line
                     else:
-                        _args = pline.replace(',', '')
+                        _args = p_line.replace(',', '')
                         # _args = _args.replace('\"', '')
             line = ' '.join([_cmd, _cls, _id, _args])
 
@@ -115,16 +115,24 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        if not args:
+        try:
+            if not args:
+                raise SyntaxError()
+            arg_list = args.split(" ")
+            key_word = {}
+            for arg in arg_list[1:]:
+                arg_splited = arg.split("=")
+                arg_splited[1] = eval(arg_splited[1])
+                if type(arg_splited[1]) is str:
+                    arg_splited[1] = arg_splited[1].replace("_", " ").replace('"', '\\"')
+                key_word[arg_splited[0]] = arg_splited[1]
+        except SyntaxError:
             print("** class name missing **")
-            return
-        elif args not in HBNBCommand.classes:
+        except NameError:
             print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+        new_object = HBNBCommand.classes[arg_list[0]](**key_word)
+        new_object.save()
+        print(new_object.id)
 
     def help_create(self):
         """ Help information for the create method """
@@ -206,13 +214,11 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
-        else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all(HBNBCommand.classes[args]).items():
                 print_list.append(str(v))
-
+        else:
+            for k, v in storage.all().items():
+                print_list.append(str(v))
         print(print_list)
 
     def help_all(self):
