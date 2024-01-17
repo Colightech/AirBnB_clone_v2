@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """This module defines the DBStorage engine"""
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, MetaData, URL
 from sqlalchemy.orm import sessionmaker, scoped_session
 import os
 
@@ -11,13 +11,14 @@ class DBStorage:
 
     def __init__(self):
         """ Initialize DBStorage"""
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
-                                        .format(os.environ['HBNB_MYSQL_USER'],
-                                              os.environ['HBNB_MYSQL_PWD'],
-                                              os.environ['HBNB_MYSQL_HOST'],
-                                              os.environ['HBNB_MYSQL_DB']),
-                                            polpool_pre_ping=True
-                                        )
+        url_obj = URL.create(
+            'mysql+mysqldb',
+            username=os.environ['HBNB_MYSQL_USER'],
+            password=os.environ['HBNB_MYSQL_PWD'],
+            host=os.environ['HBNB_MYSQL_HOST'],
+            database=os.environ['HBNB_MYSQL_DB']
+        )
+        self.__engine = create_engine(url_obj)
         if os.environ.get('HBNB_ENV') == 'test':
             Base.MetaData.dropp_all(self.__engine)
 
