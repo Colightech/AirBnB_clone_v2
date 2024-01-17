@@ -18,7 +18,7 @@ class DBStorage:
             os.environ['HBNB_MYSQL_DB']
         )
         print(connection_str)
-        self.__engine = create_engine(connection_str, polpool_pre_ping=True)
+        self.__engine = create_engine(connection_str, pool_pre_ping=True)
         if os.environ.get('HBNB_ENV') == 'test':
             Base.MetaData.dropp_all(self.__engine)
 
