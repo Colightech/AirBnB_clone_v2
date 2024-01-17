@@ -9,8 +9,8 @@ class DBStorage:
     __engine = None
     __session = None
 
-    __init__(self):
-    """ Initialize DBStorage"""
+    def __init__(self):
+        """ Initialize DBStorage"""
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
                                         .format(os.environ['HBNB_MYSQL_USER'],
                                               os.environ['HBNB_MYSQL_PWD'],
@@ -36,11 +36,11 @@ class DBStorage:
         return {obj.__class__.__name__ + '.' + obj.id: obj for obj in objects}
     
     def new(self, obj):
-    """ Add the object to the current database session"""
+        """ Add the object to the current database session"""
         self.__session.add(obj)
     
     def save(self):
-    """ Commit all changes of the current database session"""
+        """ Commit all changes of the current database session"""
         self.__session.commit()
     
     def delete(self, obj=None):
