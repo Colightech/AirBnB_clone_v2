@@ -11,14 +11,14 @@ class DBStorage:
 
     def __init__(self):
         """ Initialize DBStorage"""
-        url_obj = URL.create(
-            'mysql+mysqldb',
-            username=os.environ['HBNB_MYSQL_USER'],
-            password=os.environ['HBNB_MYSQL_PWD'],
-            host=os.environ['HBNB_MYSQL_HOST'],
-            database=os.environ['HBNB_MYSQL_DB']
+        connection_str = 'mysql+mysqldb://{}:{}@{}/{}'.format(
+            os.environ['HBNB_MYSQL_USER'],
+            os.environ['HBNB_MYSQL_PWD'],
+            os.environ['HBNB_MYSQL_HOST'],
+            os.environ['HBNB_MYSQL_DB']
         )
-        self.__engine = create_engine(url_obj)
+        print(connection_str)
+        self.__engine = create_engine(connection_str, polpool_pre_ping=True)
         if os.environ.get('HBNB_ENV') == 'test':
             Base.MetaData.dropp_all(self.__engine)
 
